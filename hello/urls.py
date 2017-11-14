@@ -5,4 +5,5 @@ urlpatterns = [
     url(r'^index/$', views.index),
     url(r'^findbymonth/$', views.findbymonth),
     url(r'^login/$', views.login),
+    url(r'^book/$', views.book),
 ]

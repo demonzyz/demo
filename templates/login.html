@@ -5,11 +5,14 @@
     <title>登录页面</title>
 </head>
 <body>
-    <h1>登录页面</h1>
-        <form name="登录" action="/hello/login/" method="POST">
-            <input type="text" name="username" placeholder="请输入用户名"><br><br>
-            <input type="text" name="password" placeholder="请输入密码"><br><br>
-            <input type="submit" name="提交"><br><br>
-        </form>
+<h1>用户登录</h1>
+    <form action="/hello/login/" method="post">
+        <input type="text" name="username" placeholder="请输入用户名"><br>
+        <br>
+        <input type="text" name="password" placeholder="请输入密码"><br>
+        <br>
+        <button type="submit" name="submit">提交登录</button>
+    </form>
+
 </body>
 </html>

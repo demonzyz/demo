@@ -1,87 +1,160 @@
-#coding:utf-8
+# encoding=utf-8
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_protect
-# Create your views here.
-from django.http import HttpResponse,HttpResponseRedirect,JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import json
-import os
 from django.contrib import auth
+import os
+from django.http import HttpResponse
+from hello.models import *
+# Create your views here.
+
+# def index(request):
+#     # print request.path
+#     if request.method == 'POST':
+#         name = request.POST.get('name', None)
+#         if name is not None:
+#             info = name
+#         else:
+#             info = u'缺少name参数'
+#     else:
+#         info = u'该接口只支持POST请求'
+# def index(request):
+#     # print request.path
+#     print request.get_full_path()
+#     if request.method == 'GET':
+#         name = request.GET.get('name', None)
+#         if name is not None:
+#             info = name
+#         else:
+#             info = u'缺少name参数'
+#     else:
+#         info = u'该接口只支持get请求'
+#     return render(request, 'index.html', {'info': info})
 
 def index(request):
-    # data = {'status':'0'}
-    # return JsonResponse(data=data)
-    return render(request, 'login.html')
-    # return HttpResponse('Hello Django')
 
+    return render(request, 'login.html')
 
 def findbymonth(request):
     if request.method == 'GET':
         month = request.GET.get('month', None)
         if month is not None:
             bug_info = search_by_month(month)
-            # return render(request, 'buginfo.html', {'bug_info':bug_info})
-            return JsonResponse(data=bug_info)
+            return render(request, 'buginfo.html', {'bug_info':bug_info})
         else:
-            return HttpResponse(u'缺少参数month', status=400, content_type='text/xml')
+            return HttpResponse('缺少参数month')
     else:
         return HttpResponse(u'该接口只支持GET请求')
 
-@csrf_exempt
-def login(request):
-    response = ''
-    if request.method =='POST':
-        username = request.POST.get('username', None)
-        password = request.POST.get('password', None)
-
-        if username and password:
-            if len(username)>5:
-                # if search_user(username, password):
-                #     return render(request, 'home.html', {'username':username})
-                user = auth.authenticate(username=username, password=password)
-                if user:
-                    auth.login(request, user)
-                    return render(request, 'home.html', {'username': username})
-                else:
-                    response = u'用户名或密码错误'
-            else:
-                response = u'username必须大于5位'
-        else:
-            response = u'缺少必要参数："USERNAME" or "PASSWORD" '
-    else:
-        response = u'该接口只支持POST请求'
-    return render(request, 'error.html', {'info':response})
-
-def search_user(username, password):
-    # print os.path.abspath(".")
-    try:
-        with open(os.path.abspath('.'+'/login.txt')) as f:
-            lines = f.readlines()
-            for line in lines:
-                u = line.split(',')[0].strip()
-                p = line.split(',')[1].strip()
-                if u == username and p == password:
-                    return True
-    except:
-        return False
-    return False
-
-
 def search_by_month(month):
-    data = '''
-    {"xAxis":["business_autoFans_J","autoAX","autoAX_admin"],"yAxis":[{"2016_08":[14,7,16],"2016_09":[0,13,12],"2016_10":[24,15,7]},{"2016_08":[0,0,5],"2016_09":[32,31,17],"2016_10":[22,22,9]}, {"2016_08":[0,7,10],"2016_09":[0,0,0],"2016_10":[5,13,2]}]}	
-    '''
+    data='''
+{"xAxis":["business_autoFans_J","autoAX","autoAX_admin"],"yAxis":[{"2016_08":[14,7,16],"2016_09":[0,13,12],"2016_10":[24,15,7]},{"2016_08":[0,0,5],"2016_09":[32,31,17],"2016_10":[22,22,9]}, {"2016_08":[0,7,10],"2016_09":[0,0,0],"2016_10":[5,13,2]}]}	
+'''
     show_data = json.loads(data)
     project_name = show_data['xAxis']
     bug_number = []
     for data in show_data['yAxis']:
         sum = 0
-        if month < 10:
+        if month<10:
             month = '0' + str(month)
         else:
             month = str(month)
+
         for bug in data['2016_%s' % month]:
             sum += int(bug)
         bug_number.append(sum)
+
     bug_total = dict(zip(project_name, bug_number))
+    print bug_total
     return bug_total
+
+# def login(request):
+#     response = ''
+#     if request.method == 'POST':
+#         username = request.POST.get('username', None)
+#         password = request.POST.get('password', None)
+#         if username and password:
+#             if len(username) > 5:
+#                 if checkIn(username, password):
+#                     return render(request, 'home.html', {'username':username})
+#                 else:
+#                     response = u'用户名和密码错误'
+#             else:
+#                 response = u'username必须大于5位'
+#         else:
+#             response = u'缺少必要参数：username、password'
+#     else:
+#         response = u'该接口只支持POST接口请求'
+#     return render(request, 'error.html', {'info':response})
+
+def login(request):
+    response = ''
+    if request.method == 'POST':
+        username = request.POST.get('username', None)
+        password = request.POST.get('password', None)
+
+
+        if username and password:
+            if len(username) > 3:
+                # if checkIn(username, password):
+                #     return render(request, 'home.html', {'username':username})
+                # user = auth.authenticate(username=username, password=password)
+                # if user:
+                #     auth.login(request, user)
+                user = User.objects.filter(username=username, password=password)
+                if user.exists():
+                    return render(request, 'home.html', {'username': username})
+                else:
+                    response = u'用户名和密码错误'
+            else:
+                response = u'username必须大于5位'
+        else:
+            response = u'缺少必要参数：username、password'
+    else:
+        response = u'该接口只支持POST接口请求'
+    return render(request, 'error.html', {'info':response})
+
+def checkIn(username,password):
+    # print os.path.abspath('.')
+    try:
+        with open('.\\login.txt', 'r') as f:
+            lines =  f.readlines()
+            for line in lines:
+                u = line.split(',')[0].strip()
+                p = line.split(',')[1].strip()
+                if u == username and p == password:
+                    return True
+    except Exception,e:
+        print e
+        return False
+    return False
+
+
+def book(request):
+    # print Author.objects.get(id=1)
+    # return HttpResponse(Author.objects.get(id=1))
+    # return HttpResponse(Author.objects.filter(id=1).query)
+    # print Author.objects.get(id=1)
+    # print type(Author(name='张三'))
+    # print type(Author.objects.create(name='李四'))
+    # luxun = Author.objects.get(id=1)
+    # Author_Details(sex=0, age=100, phone_number='13800138000', author=luxun).save()
+    # tianlaoshi = Author(name='田伟峰')
+    # tianlaoshi.save()
+    # Author_Details(sex=0, age=30, phone_number='13800138001', author=tianlaoshi).save()
+    # Author.objects.all()
+    # Author.objects.get(name='鲁迅')
+    # Author.objects.filter(name='鲁迅')
+    # author = Author.objects.get(id=8)
+    # author.name = '天威封'
+    # author.save()
+    # author = Author.objects.filter(id=8).first()
+    # author.name = '天威封2'
+    # author.save()
+    # author = Author.objects.filter(name__contains='刘').order_by('id')
+    # print author
+    # author = Author.objects.exclude(name__contains='刘').distinct()
+    # print author
+    author = Author.objects.filter(name__contains='杨').values('id')
+    print author
+    return HttpResponse('1')
+
