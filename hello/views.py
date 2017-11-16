@@ -3,8 +3,9 @@ from django.shortcuts import render
 import json
 from django.contrib import auth
 import os
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseRedirect
 from hello.models import *
+from django.core.urlresolvers import reverse
 # Create your views here.
 
 # def index(request):
@@ -32,7 +33,7 @@ from hello.models import *
 
 def index(request):
 
-    return render(request, 'login.html')
+    return render(request, 'index.html')
 
 def findbymonth(request):
     if request.method == 'GET':
@@ -97,12 +98,15 @@ def login(request):
             if len(username) > 3:
                 # if checkIn(username, password):
                 #     return render(request, 'home.html', {'username':username})
-                # user = auth.authenticate(username=username, password=password)
+                user = auth.authenticate(username=username, password=password)
                 # if user:
                 #     auth.login(request, user)
-                user = User.objects.filter(username=username, password=password)
-                if user.exists():
-                    return render(request, 'home.html', {'username': username})
+                # user = User.objects.filter(username=username, password=password)
+                if user:
+                    # return HttpResponseRedirect('/hello/home')
+                    # return render(request, 'home.html', {'username': username})
+                    reverse('hello.views.home')
+                    return HttpResponseRedirect(reverse('hello.views.home'))
                 else:
                     response = u'用户名和密码错误'
             else:
@@ -111,7 +115,8 @@ def login(request):
             response = u'缺少必要参数：username、password'
     else:
         response = u'该接口只支持POST接口请求'
-    return render(request, 'error.html', {'info':response})
+    # return render(request, 'error.html', {'info':response})
+    return HttpResponseRedirect('/hello/error')
 
 def checkIn(username,password):
     # print os.path.abspath('.')
@@ -128,6 +133,11 @@ def checkIn(username,password):
         return False
     return False
 
+def home(request):
+    return render(request,'home.html', {'username':'123'})
+
+def error(request):
+    return render(request,'error.html', {'info':'345'})
 
 def book(request):
     # print Author.objects.get(id=1)

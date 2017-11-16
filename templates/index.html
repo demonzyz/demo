@@ -1,10 +1,29 @@
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>测试小智</title>#}
+{#</head>#}
+{#<body>#}
+{#您好，{{ info }}#}
+{#</body>#}
+{#</html>#}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>测试小智</title>
+    <title>登录页面</title>
 </head>
 <body>
-您好，{{ info }}
+<h1>用户登录</h1>
+    <form action="/hello/login/" method="post">
+        <input type="text" name="username" placeholder="请输入用户名"><br>
+        <br>
+        <input type="text" name="password" placeholder="请输入密码"><br>
+        <br>
+        <button type="submit" name="submit">提交登录</button>
+    </form>
+
 </body>
 </html>
