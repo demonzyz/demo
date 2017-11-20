@@ -1,4 +1,4 @@
-# encoding=utf-8
+# coding=utf-8
 from django.db import models
 
 # Create your models here.
@@ -35,6 +35,9 @@ class Book(models.Model):
     publication = models.DateField()
     publisher = models.ForeignKey(Publisher)
     author = models.ManyToManyField(Author)
+    def __unicode__(self):
+        return self.title
+
     class Meta():
         verbose_name = '书籍信息表'
         verbose_name_plural = verbose_name

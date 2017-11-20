@@ -103,9 +103,10 @@ def login(request):
                 #     auth.login(request, user)
                 # user = User.objects.filter(username=username, password=password)
                 if user:
-                    # return HttpResponseRedirect('/hello/home')
                     # return render(request, 'home.html', {'username': username})
-                    reverse('hello.views.home')
+                    # reverse('hello.views.home')
+                    # return HttpResponseRedirect('/hello/home')
+                    request.session['user'] = username
                     return HttpResponseRedirect(reverse('hello.views.home'))
                 else:
                     response = u'用户名和密码错误'
@@ -116,7 +117,9 @@ def login(request):
     else:
         response = u'该接口只支持POST接口请求'
     # return render(request, 'error.html', {'info':response})
-    return HttpResponseRedirect('/hello/error')
+    # request.session['error_info'] = response
+    # return HttpResponseRedirect('/hello/error')
+    return HttpResponseRedirect("/hello/error/?error_info=%s" % response)
 
 def checkIn(username,password):
     # print os.path.abspath('.')
@@ -134,13 +137,17 @@ def checkIn(username,password):
     return False
 
 def home(request):
-    return render(request,'home.html', {'username':'123'})
+    return render(request,'home.html', {'username': request.session.get('user', '')})
 
 def error(request):
-    return render(request,'error.html', {'info':'345'})
+    # return render(request,'error.html', {'info': request.session.get('error_info', '')})
+    error_info = request.GET.get('error_info', None)
+    return render(request, 'error.html', {'info': error_info})
 
 def book(request):
     # print Author.objects.get(id=1)
+
+    # print Author.objects.get(name='刘大海')
     # return HttpResponse(Author.objects.get(id=1))
     # return HttpResponse(Author.objects.filter(id=1).query)
     # print Author.objects.get(id=1)
@@ -164,7 +171,11 @@ def book(request):
     # print author
     # author = Author.objects.exclude(name__contains='刘').distinct()
     # print author
-    author = Author.objects.filter(name__contains='杨').values('id')
-    print author
-    return HttpResponse('1')
+    # author = Author.objects.filter(name__contains='杨').values('id')
+    # print author
+    try:
+        if Author.objects.filter(name__exact='刘海'):
+            return HttpResponse('134123')
+    except:
+        return HttpResponse('1')
 
