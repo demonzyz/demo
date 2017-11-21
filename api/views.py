@@ -12,21 +12,18 @@ from api.models import *
 #     time = request.POST.get('time', None)
 #     limit = request.POST.get('limit', 200)
 #     status = request.POST.get('status', 0)
-#     message = {}
-#     if title is  None or address is None or time is None:
+#     if title is None or address is None or time is None:
 #         message = {'error_code': 10001}
 #     else:
-#         data_title = Add_Event.objects.get(title__iexact=title)
-#         try:
-#             if Add_Event.objects.filter(title=data_title):
-#                 if status not in [0, 1, 2]:
-#                     message = {'error_code': 10003}
-#                 else:
-#                     Add_Event.objects.get_or_create(title=title, address=address, time=time, limit=limit, status=status)
-#                     id = Add_Event.objects.get(title=title).id
-#                     message = {'error_code': 0, 'data': {'event_id': id, 'statue': 0}}
-#         except:
+#         if Add_Event.objects.filter(title=title):
 #             message = {'error_code': 10002}
+#         else:
+#             if status not in [0, 1, 2]:
+#                 message = {'error_code': 10003}
+#             else:
+#                 Add_Event.objects.get_or_create(title=title, address=address, time=time, limit=limit, status=status)
+#                 id = Add_Event.objects.get(title=title).id
+#                 message = {'error_code': 0, 'data': {'event_id': id, 'statue': 0}}
 #     return JsonResponse(message)
 
 # @api_view(['POST', ])
@@ -36,13 +33,12 @@ def add_event(request):
     time = request.POST.get('time', None)
     limit = request.POST.get('limit', 200)
     status = request.POST.get('status', 0)
-    # result = {}
     if title and address and time:
         event = Add_Event.objects.filter(title=title)
         if not event:
-            if status in ('0', '1', '2'):
+            if status in (0, 1, 2):
                 Add_Event.objects.create(title=title, address=address, time=time, limit=limit, status=status)
-                id = Add_Event.objects.get(title).id
+                id = Add_Event.objects.get(title=title).id
                 result = {'error_code': 0, 'data': {'event_id': id, 'statue': 0}}
             else:
                 result = {'error_code': 10003}
