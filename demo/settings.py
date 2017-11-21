@@ -109,6 +109,7 @@ STATIC_URL = '/static/'
 # STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 APPEND_SLASH = False
+DjangoJSONEncoder = 'utf-8'
 
 
 LOGGING = {

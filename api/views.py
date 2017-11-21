@@ -1,3 +1,4 @@
+# cod
 from django.shortcuts import render
 
 # Create your views here.
@@ -51,14 +52,36 @@ def add_event(request):
 
 def get_eventlist(request):
     title = request.GET.get('title', None)
-    result = {}
-    if title is not None:
-        list = []
-        for key in title:
-            id = Add_Event.objects.get(title=key).id
-            status = Add_Event.objects.get(title=key).status
-            list.append({'id': id, 'title': title, 'status': status})
-        result = {'event_list': list}
+    data_title = Add_Event.objects.filter(title__contains=title)
+    if data_title.count() > 0:
+        event_list = []
+        for key in data_title:
+            id = key.id
+            status = key.status
+            title = key.title
+            event_list.append({'id': id, 'title': title, 'status': status})
+        result = {'error_code': 0, 'event_list': event_list}
     else:
         result = {'error_code': 10004}
-    return JsonResponse(result)
+    return HttpResponse(json.dumps(result, ensure_ascii=False))
+
+
+# def get_eventlist(request):
+#     title = request.GET.get('title', None)
+#
+#     if not title:
+#         events = Add_Event.objects.all()
+#     else:
+#         events = Add_Event.objects.filter(title__contains=title)
+#     if events.count() > 0:
+#         event_list = []
+#         for event in events:
+#             id = event.id
+#             title = event.title
+#             status = event.status
+#             event_list.append({'id': id, 'title': title, 'status': status})
+#         result = {'error_code': 0, 'event_list': event_list}
+#     else:
+#         result = {'error_code': 10004}
+#     # return JsonResponse(result)
+#     return HttpResponse(json.dumps(result, ensure_ascii=False))
