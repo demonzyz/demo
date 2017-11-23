@@ -10,3 +10,4 @@ class Add_Event(models.Model):
     status = models.SmallIntegerField(choices=status_choice,default=0, null=True)
     address = models.CharField(max_length=50, null=False)
     time = models.DateField(null=False)
+

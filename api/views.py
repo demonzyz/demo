@@ -58,6 +58,9 @@ def add_event(request):
 def get_eventlist(request):
     title = request.GET.get('title', None)
     data_title = Add_Event.objects.filter(title__contains=title)
+    if not data_title:
+        result = {'error_code': 10004}
+        return HttpResponse(json.dumps(result, ensure_ascii=False))
     if data_title.count() > 0:
         event_list = []
         for key in data_title:
@@ -96,11 +99,10 @@ def get_eventlist(request):
 #查询会议详细信息接口第一种
 def get_eventdetail(request):
     id = request.GET.get('id', None)
-    select_id = ''
-    try:
-        select_id = Add_Event.objects.get(id=id).id
-    except:
+    select_id = Add_Event.objects.filter(id=id)
+    if not select_id:
         result = {'error_code': 10004}
+        return HttpResponse(json.dumps(result, ensure_ascii=False))
     if select_id:
         title = Add_Event.objects.get(id=id).title
         status = Add_Event.objects.get(id=id).status
@@ -129,3 +131,30 @@ def get_eventdetail(request):
 #     else:
 #         result = {'error_code': 10004}
 #     return HttpResponse(json.dumps(result, ensure_ascii=False))
+
+
+#修改发布会状态接口
+@api_view(['POST', ])
+def set_status(request):
+    id = request.POST.get('id', None)
+    set_status = request.POST.get('status', None)
+    select_id = Add_Event.objects.filter(id=id)
+    if not select_id:
+        result = {'error_code1': 10004}
+        return HttpResponse(json.dumps(result, ensure_ascii=False))
+    select_status = Add_Event.objects.get(id=id).status
+    if int(set_status) not in (0, 1, 2):
+        result = {'error_code': 10004}
+        return HttpResponse(json.dumps(result, ensure_ascii=False))
+    if select_status is int(set_status):
+        result = {'error_code': 10004}
+        return HttpResponse(json.dumps(result, ensure_ascii=False))
+    if select_id.count() > 0 and select_status is not None:
+        set_sql_status = Add_Event.objects.get(id=id)
+        set_sql_status.status = set_status
+        set_sql_status.save()
+        result = {'error_code': 0}
+    else:
+        result = {'error_code': 10004}
+        print '4 select_id is not None and select_status is not None'
+    return HttpResponse(json.dumps(result, ensure_ascii=False))
