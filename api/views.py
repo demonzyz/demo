@@ -156,5 +156,41 @@ def set_status(request):
         result = {'error_code': 0}
     else:
         result = {'error_code': 10004}
-        print '4 select_id is not None and select_status is not None'
+    return HttpResponse(json.dumps(result, ensure_ascii=False))
+
+
+def add_guest(request):
+    event_id = request.POST.get('event_id', None)
+    name = request.POST.get('name', None)
+    phone_number = request.POST.get('phone_number', None)
+    e_mail = request.POST.get('e_mail', None)
+    # print event_id, '\n', name, '\n', phone_number, '\n', e_mail
+    if event_id and name and phone_number:
+        id = Add_Event.objects.filter(id=event_id)
+        if not id:
+            result = {'error_code1': 10004}
+            return HttpResponse(json.dumps(result, ensure_ascii=False))
+        name_id = Add_Guest.objects.filter(name=name)
+        if not name_id:
+            status = Add_Event.objects.get(id=event_id).status
+            if status is 1:
+                limit = Add_Event.objects.get(id=event_id).limit
+                print limit
+                if limit < 200:
+                    Add_Guest.objects.get_or_create(event_id=event_id, name=name, phone_number=phone_number,e_mail=e_mail)
+                    set_sql_limit = Add_Event.objects.get(id=event_id).limit
+                    print set_sql_limit
+                    set_sql_limit.limit = limit + 1
+                    set_sql_limit.save()
+                    id = Add_Guest.objects.get(name=name).id
+                    result = {'error_code': 0, 'data': {'event_id': event_id, 'guest_id': id}}
+                    print result
+                else:
+                    result = {'error_code': 10006}
+            else:
+                result = {'error_code': '会议未开启'}
+        else:
+            result = {'error_code1': 10005}
+    else:
+        result = {'error_code': 10001}
     return HttpResponse(json.dumps(result, ensure_ascii=False))

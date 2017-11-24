@@ -3,6 +3,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Add_Event(models.Model):
     title = models.CharField(max_length=50, null=False, unique=True)
     limit = models.SmallIntegerField(default=200, null=True)
@@ -11,3 +12,9 @@ class Add_Event(models.Model):
     address = models.CharField(max_length=50, null=False)
     time = models.DateField(null=False)
 
+
+class Add_Guest(models.Model):
+    event = models.ManyToManyField(Add_Event, null=False)
+    name = models.CharField(max_length=30, null=False)
+    phone_number = models.CharField(max_length=30, null=False)
+    e_mail = models.CharField(max_length=50, null=True)
