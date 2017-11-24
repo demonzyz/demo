@@ -158,7 +158,8 @@ def set_status(request):
         result = {'error_code': 10004}
     return HttpResponse(json.dumps(result, ensure_ascii=False))
 
-
+#添加嘉宾接口
+@api_view(['POST', ])
 def add_guest(request):
     event_id = request.POST.get('event_id', None)
     name = request.POST.get('name', None)
@@ -190,4 +191,24 @@ def add_guest(request):
             result = {'error_code1': 10005}
     else:
         result = {'error_code': 10001}
+    return HttpResponse(json.dumps(result, ensure_ascii=False))
+
+#查询嘉宾接口
+@api_view(['GET', ])
+def get_guestlist(request):
+    evevt_id = request.GET.get('event_id', None)
+    sql_event_id = Add_Guest.objects.filter(event_id=evevt_id)
+    if not sql_event_id:
+        result = {'error_code': 10007}
+    else:
+        if sql_event_id.count() > 0:
+            guest_list = []
+            for key in sql_event_id:
+                guest_id = key.id
+                guest_name = key.name
+                guest_phone_number = key.phone_number
+                guest_e_mail = key.e_mail
+                guest_list.append({'guest_id': guest_id, 'guest_name': guest_name,
+                                   'guest_phone_number': guest_phone_number, 'guest_e_mail': guest_e_mail})
+        result = {'guest_list': guest_list, 'error_code': 0}
     return HttpResponse(json.dumps(result, ensure_ascii=False))

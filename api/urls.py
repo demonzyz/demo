@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^get_eventdetail$', views.get_eventdetail),
     url(r'^set_status$', views.set_status),
     url(r'^add_guest$', views.add_guest),
+    url(r'^get_guestlist$', views.get_guestlist),
 ]
