@@ -40,8 +40,8 @@ def add_event(request):
     if title and address and time:
         event = Add_Event.objects.filter(title=title)
         if not event:
-            if status in (0, 1, 2):
-                Add_Event.objects.create(title=title, address=address, time=time, limit=limit, status=status)
+            if int(status) in (0, 1, 2):
+                Add_Event.objects.get_or_create(title=title, address=address, time=time, limit=limit, status=status)
                 id = Add_Event.objects.get(title=title).id
                 result = {'error_code': 0, 'data': {'event_id': id, 'statue': 0}}
             else:
@@ -175,16 +175,13 @@ def add_guest(request):
             status = Add_Event.objects.get(id=event_id).status
             if status is 1:
                 limit = Add_Event.objects.get(id=event_id).limit
-                print limit
                 if limit < 200:
                     Add_Guest.objects.get_or_create(event_id=event_id, name=name, phone_number=phone_number,e_mail=e_mail)
-                    set_sql_limit = Add_Event.objects.get(id=event_id).limit
-                    print set_sql_limit
-                    set_sql_limit.limit = limit + 1
+                    set_sql_limit = Add_Event.objects.get(id=event_id)
+                    set_sql_limit.limit += 1
                     set_sql_limit.save()
                     id = Add_Guest.objects.get(name=name).id
                     result = {'error_code': 0, 'data': {'event_id': event_id, 'guest_id': id}}
-                    print result
                 else:
                     result = {'error_code': 10006}
             else:

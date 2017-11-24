@@ -14,7 +14,7 @@ class Add_Event(models.Model):
 
 
 class Add_Guest(models.Model):
-    event = models.ManyToManyField(Add_Event, null=False)
+    event = models.ForeignKey(Add_Event, null=False)
     name = models.CharField(max_length=30, null=False)
     phone_number = models.CharField(max_length=30, null=False)
     e_mail = models.CharField(max_length=50, null=True)
