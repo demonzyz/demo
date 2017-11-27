@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Add_Event',
+            name='Event',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(unique=True, max_length=50)),
@@ -20,5 +20,23 @@ class Migration(migrations.Migration):
                 ('address', models.CharField(max_length=50)),
                 ('time', models.DateField()),
             ],
+            options={
+                'verbose_name': '\u4f1a\u8bae\u8868',
+                'verbose_name_plural': '\u4f1a\u8bae\u8868',
+            },
+        ),
+        migrations.CreateModel(
+            name='Guest',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=30)),
+                ('phone_number', models.CharField(max_length=30)),
+                ('e_mail', models.CharField(max_length=50, null=True)),
+                ('event', models.ManyToManyField(to='api.Event')),
+            ],
+            options={
+                'verbose_name': '\u5609\u5bbe\u8868',
+                'verbose_name_plural': '\u5609\u5bbe\u8868',
+            },
         ),
     ]
