@@ -8,5 +8,9 @@ urlpatterns = [
     url(r'^set_status/$', views.set_status),
     url(r'^add_guest/$', views.add_guest),
     url(r'^get_guestlist/$', views.get_guestlist),
+    url(r'^sign/$', views.sign),
+    url(r'^register/$', views.register),
+
+
 
 ]

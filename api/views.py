@@ -5,6 +5,62 @@ from rest_framework.decorators import api_view
 from django.http import HttpResponse, JsonResponse
 import json
 from api.models import *
+from rest_framework.authtoken.models import Token
+import hashlib
+from django.contrib.auth.models import User
+import time
+from django.db import connection
+import base64
+from django.contrib import auth
+
+
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
+
+def check_sign(header_dic, query_dic):
+    flag = False
+    sign = query_dic.get('sign', None)
+    username = query_dic.get('username', None)
+    token = header_dic.get('HTTP_TOKEN', None)
+    random = header_dic.get('HTTP_RANDOM', None)
+    md5 = hashlib.md5()
+    user = User.objects.filter(username=username)
+    if user.exists():
+        if token == Token.objects.get(user=user.first()).key and sign:
+            if token and len(random) == 5:
+                para_str = ''
+                if query_dic:
+                    list = []
+                    for k, v in query_dic.items():
+                        if k !='sign' and k !='username':
+                            list.append(k + '=' + v)
+                    list.sort()
+                    para_str = '&'.join(list)
+                sign_str = "%spara=%s%s" % (token, para_str, random)
+                md5.update(sign_str.encode(encoding="utf-8"))
+                server_sign = md5.hexdigest()
+                if server_sign == sign:
+                    flag = True
+    return flag
+
+#登录接口
+@api_view(['POST', ])
+def register(request):
+    username = request.POST.get('username', None)
+    password = request.POST.get('password', None)
+    print password
+    if username and password:
+        password = base64.decodestring(password)[3:]
+        user = auth.authenticate(username=username, password=password)
+        if user:
+            token_str = Token.objects.get(user=user).key
+            result = {'error_code': 0, 'token': token_str}
+        else:
+            result = {'error_code': 10000}
+    else:
+        result = {'error_code': 10001}
+    return JsonResponse(result)
 
 
 #创建会议接口第一种
@@ -224,3 +280,42 @@ def get_guestlist(request):
     else:
         result = {'error_code': 10001}
     return HttpResponse(json.dumps(result, ensure_ascii=False))
+
+#嘉宾签到接口
+@api_view(['POST', ])
+def sign(request):
+    event_id = request.POST.get('id', None)
+    phone_number = request.POST.get('phone_number', None)
+    username = request.POST.get('username', None)
+    if event_id and phone_number and username:
+        if check_sign(request.META, request.POST):
+            event = Event.objects.filter(id=event_id)
+            if event.exists():
+                n_time = time.time()
+                e_time = time.mktime(event.first().time.timetuple())
+                if event.first().status != '2' and n_time < e_time:
+                    guest = Guest.objects.filter(phone_number=phone_number, event=event.first())
+                    if guest.exists():
+                        query = "SELECT sign FROM api_guest_event where guest_id=%s and event_id=%s" \
+                                %(guest.first().id, event_id)
+                        cursor = connection.cursor()
+                        cursor.execute(query)
+                        is_sign = cursor.fetchone()[0]
+                        if is_sign == 0:
+                            query = "UPDATE api_guest_event SET sign=1 where guest_id=%s and event_id=%s" \
+                                %(guest.first().id, event_id)
+                            cursor.execute(query)
+                            result = {'error_code': 0}
+                        else:
+                            result = {'error_code': 10009}
+                    else:
+                        result = {'error_code': 10008}
+                else:
+                    result = {'error_code': 10010}
+            else:
+                result = {'error_code': 10004}
+        else:
+            result = {'error_code': 10011}
+    else:
+        result = {'error_code': 10001}
+    return JsonResponse(result)
