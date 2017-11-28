@@ -23,17 +23,12 @@ class Event(models.Model):
     def __unicode__(self):
         return self.title
 
-<<<<<<< HEAD
     class Meta():
         verbose_name = '会议表'
         verbose_name_plural = verbose_name
 
 class Guest(models.Model):
     event = models.ManyToManyField(Event, null=False)
-=======
-class Add_Guest(models.Model):
-    event = models.ForeignKey(Add_Event, null=False)
->>>>>>> master
     name = models.CharField(max_length=30, null=False)
     phone_number = models.CharField(max_length=30, null=False)
     e_mail = models.CharField(max_length=50, null=True)

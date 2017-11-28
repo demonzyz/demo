@@ -97,13 +97,8 @@ def add_event(request):
         event = Event.objects.filter(title=title)
         if not event:
             if int(status) in (0, 1, 2):
-<<<<<<< HEAD
                 Event.objects.create(title=title, address=address, time=time, limit=limit, status=status)
                 id = Event.objects.get(title=title).id
-=======
-                Add_Event.objects.get_or_create(title=title, address=address, time=time, limit=limit, status=status)
-                id = Add_Event.objects.get(title=title).id
->>>>>>> master
                 result = {'error_code': 0, 'data': {'event_id': id, 'statue': 0}}
             else:
                 result = {'error_code': 10003}
@@ -218,10 +213,7 @@ def set_status(request):
         result = {'error_code': 10004}
     return HttpResponse(json.dumps(result, ensure_ascii=False))
 
-<<<<<<< HEAD
 
-=======
->>>>>>> master
 #添加嘉宾接口
 @api_view(['POST', ])
 def add_guest(request):
@@ -229,7 +221,6 @@ def add_guest(request):
     name = request.POST.get('name', None)
     phone_number = request.POST.get('phone_number', None)
     e_mail = request.POST.get('e_mail', None)
-<<<<<<< HEAD
     if id and name and phone_number:
         event = Event.objects.filter(id=id)
         if event.exists():
@@ -241,26 +232,6 @@ def add_guest(request):
                     g.save()
                     g.event.add(event.first())
                     result = {'error_code': 0, "data": {"event_id": id, "guest_id": g.id}}
-=======
-    # print event_id, '\n', name, '\n', phone_number, '\n', e_mail
-    if event_id and name and phone_number:
-        id = Add_Event.objects.filter(id=event_id)
-        if not id:
-            result = {'error_code1': 10004}
-            return HttpResponse(json.dumps(result, ensure_ascii=False))
-        name_id = Add_Guest.objects.filter(name=name)
-        if not name_id:
-            status = Add_Event.objects.get(id=event_id).status
-            if status is 1:
-                limit = Add_Event.objects.get(id=event_id).limit
-                if limit < 200:
-                    Add_Guest.objects.get_or_create(event_id=event_id, name=name, phone_number=phone_number,e_mail=e_mail)
-                    set_sql_limit = Add_Event.objects.get(id=event_id)
-                    set_sql_limit.limit += 1
-                    set_sql_limit.save()
-                    id = Add_Guest.objects.get(name=name).id
-                    result = {'error_code': 0, 'data': {'event_id': event_id, 'guest_id': id}}
->>>>>>> master
                 else:
                     result = {'error_code': 10006}
             else:
@@ -347,28 +318,4 @@ def sign(request):
             result = {'error_code': 10011}
     else:
         result = {'error_code': 10001}
-<<<<<<< HEAD
     return JsonResponse(result)
-=======
-    return HttpResponse(json.dumps(result, ensure_ascii=False))
-
-#查询嘉宾接口
-@api_view(['GET', ])
-def get_guestlist(request):
-    evevt_id = request.GET.get('event_id', None)
-    sql_event_id = Add_Guest.objects.filter(event_id=evevt_id)
-    if not sql_event_id:
-        result = {'error_code': 10007}
-    else:
-        if sql_event_id.count() > 0:
-            guest_list = []
-            for key in sql_event_id:
-                guest_id = key.id
-                guest_name = key.name
-                guest_phone_number = key.phone_number
-                guest_e_mail = key.e_mail
-                guest_list.append({'guest_id': guest_id, 'guest_name': guest_name,
-                                   'guest_phone_number': guest_phone_number, 'guest_e_mail': guest_e_mail})
-        result = {'guest_list': guest_list, 'error_code': 0}
-    return HttpResponse(json.dumps(result, ensure_ascii=False))
->>>>>>> master
